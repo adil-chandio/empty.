@@ -1,0 +1,16 @@
+{
+  "name": "tabahi-3d-animation",
+  "version": "2.0.0",
+  "description": "Cinema-level 3D animation - storytelling, camera motions, SFX, psychology-driven engagement (Tabahi level)",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 5000",
+    "dev": "npx http-server . -p 5000"
+  },
+  "keywords": ["3d", "animation", "threejs", "cinema", "storytelling", "tabahi"],
+  "author": "adil-chandio",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

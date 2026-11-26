@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TABAHI — Next Level 3D Cinema Animation</title>
+  <meta name="description" content="Premium 3D animation — storytelling, camera motions, environment, characters, SFX, eargasm audio, psychology-driven engagement. 30 seconds, loopable, cinema level." />
+  <link rel="preconnect" href="https://esm.sh" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Three.js + camera-controls + gsap import map via esm.sh -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three@0.166.1",
+        "three/addons/": "https://esm.sh/three@0.166.1/examples/jsm/",
+        "camera-controls": "https://esm.sh/camera-controls@2.9.0",
+        "gsap": "https://esm.sh/gsap@3.12.5"
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Cinematic letterbox bars (2.39:1) -->
+  <div class="letterbox top"></div>
+  <div class="letterbox bottom"></div>
+
+  <!-- UI layer -->
+  <div id="ui">
+    <div id="title-card" class="title-card visible">
+      <div class="badge">T A B A H I · N E X T   L E V E L</div>
+      <h1 id="title-main">Controlled Chaos</h1>
+      <p id="title-sub">Every frame tells a story. 30 seconds of pure cinema.</p>
+      <div class="progress-container">
+        <div id="story-progress" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <div id="beat-label" class="beat-label">ACT I · The Hook</div>
+
+    <div id="hint" class="hint">Tap anywhere to begin the experience</div>
+
+    <div id="stats" class="stats" aria-hidden="true">
+      <div><strong>FPS</strong> <span id="fps">--</span></div>
+      <div><strong>Beat</strong> <span id="beat">--</span></div>
+      <div><strong>Camera</strong> <span id="cam-mode">Cinematic</span></div>
+    </div>
+  </div>
+
+  <!-- Canvas container -->
+  <div id="canvas-container"></div>
+
+  <!-- Application logic -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
