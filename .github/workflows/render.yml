@@ -13,14 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Blender
+      - name: Install Blender via apt
         run: |
-          curl -sL -o blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
-          tar -xf blender.tar.xz
-          echo "BLENDER_PATH=$PWD/blender-4.2.3-linux-x64/blender" >> $GITHUB_ENV
-
-      - name: Verify Blender
-        run: ${{ env.BLENDER_PATH }} --version
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg
+          which blender
+          blender --version
 
       - name: Install numpy
         run: pip install numpy
@@ -30,7 +28,7 @@ jobs:
 
       - name: Render frames with Blender
         run: |
-          ${{ env.BLENDER_PATH }} -b -P blender_render.py
+          blender -b -P blender_render.py
           echo "Frames: $(ls frames/*.png 2>/dev/null | wc -l)"
 
       - name: Stitch MP4 with FFmpeg
