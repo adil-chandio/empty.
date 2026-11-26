@@ -17,8 +17,8 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq blender ffmpeg
-          echo "=== Blender ===" && blender --version | head -1
           echo "=== FFmpeg ===" && ffmpeg -version | head -1
+          echo "=== FFmpeg encoders ===" && ffmpeg -encoders 2>&1 | grep -E "libx264|aac" || echo "No x264/aac encoders"
 
       - name: Install numpy
         run: pip install numpy
@@ -29,26 +29,22 @@ jobs:
       - name: Render frames with Blender
         run: |
           blender -b -P blender_render.py
-          echo "=== Frames directory ==="
-          ls -la frames/ 2>/dev/null | head -10
           echo "Frame count: $(ls frames/*.png 2>/dev/null | wc -l)"
+          ls frames/0001.png 2>/dev/null || echo "0001.png MISSING"
 
-      - name: Pre-FFmpeg debug
+      - name: Test FFmpeg simple
         run: |
-          echo "=== Current directory ===" && pwd
-          echo "=== Files in cwd ===" && ls -la
-          echo "=== audio.wav ===" && ls -lh audio.wav 2>/dev/null || echo "MISSING"
-          echo "=== Frames count ===" && ls frames/*.png 2>/dev/null | wc -l
-          echo "=== First frame ===" && ls frames/0001.png 2>/dev/null || echo "0001.png MISSING"
-          echo "=== FFmpeg available ===" && which ffmpeg && ffmpeg -version | head -1
+          echo "=== Testing FFmpeg with simple input ==="
+          ffmpeg -f lavfi -i testsrc=duration=1:size=320x240:rate=25 -c:v libx264 -y /tmp/test.mp4 2>&1 || echo "Simple FFmpeg test FAILED"
+          ls -lh /tmp/test.mp4 2>/dev/null || echo "test.mp4 MISSING"
 
       - name: Stitch MP4 with FFmpeg
         run: |
-          set -x
-          ffmpeg -framerate 60 -i frames/%04d.png -i audio.wav \
-            -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest \
-            -crf 18 -preset slow tabahi.mp4 2>&1
-          ls -lh tabahi.mp4
+          echo "=== Pre-stitch check ==="
+          ls -lh audio.wav 2>/dev/null || echo "audio.wav MISSING"
+          echo "Frames: $(ls frames/*.png 2>/dev/null | wc -l)"
+          ffmpeg -y -framerate 60 -i frames/%04d.png -i audio.wav -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest -crf 18 -preset fast tabahi.mp4 2>&1
+          ls -lh tabahi.mp4 2>/dev/null || echo "tabahi.mp4 MISSING"
 
       - name: Upload MP4 artifact
         uses: actions/upload-artifact@v4
