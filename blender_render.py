@@ -428,9 +428,15 @@ for i in range(210):
     s.keyframe_insert(data_path='rotation_euler', frame=end_frame)
 
 # ----------------------------------------------------------------------------
+# RENDER ANIMATION
+# ----------------------------------------------------------------------------
+bpy.context.scene.render.filepath = '//frames/'
+bpy.ops.render.render(animation=True)
+print(f"Rendered {TOTAL_FRAMES} frames to //frames/")
+
+# ----------------------------------------------------------------------------
 # SAVE
 # ----------------------------------------------------------------------------
 bpy.ops.wm.save_as_mainfile(filepath='//scene.blend')
 print("TABAHI Blender scene saved: scene.blend")
 print(f"Frames: 1..{TOTAL_FRAMES} @ {FPS} FPS, {WIDTH}x{HEIGHT}")
-print("Render: blender -b scene.blend -a  (then ffmpeg to MP4)")
