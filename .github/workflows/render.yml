@@ -18,7 +18,6 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq blender ffmpeg
           echo "=== FFmpeg ===" && ffmpeg -version | head -1
-          echo "=== FFmpeg encoders ===" && ffmpeg -encoders 2>&1 | grep -E "libx264|aac" || echo "No x264/aac encoders"
 
       - name: Install numpy
         run: pip install numpy
@@ -29,20 +28,25 @@ jobs:
       - name: Render frames with Blender
         run: |
           blender -b -P blender_render.py
-          echo "Frame count: $(ls frames/*.png 2>/dev/null | wc -l)"
-          ls frames/0001.png 2>/dev/null || echo "0001.png MISSING"
-
-      - name: Test FFmpeg simple
-        run: |
-          echo "=== Testing FFmpeg with simple input ==="
-          ffmpeg -f lavfi -i testsrc=duration=1:size=320x240:rate=25 -c:v libx264 -y /tmp/test.mp4 2>&1 || echo "Simple FFmpeg test FAILED"
-          ls -lh /tmp/test.mp4 2>/dev/null || echo "test.mp4 MISSING"
+          echo "=== ALL files in frames/ ==="
+          ls -la frames/ 2>/dev/null || echo "frames/ MISSING"
+          echo "=== Frame count ==="
+          ls frames/ 2>/dev/null | wc -l
+          echo "=== First 5 frames ==="
+          ls frames/ 2>/dev/null | head -5
+          echo "=== Last 5 frames ==="
+          ls frames/ 2>/dev/null | tail -5
 
       - name: Stitch MP4 with FFmpeg
         run: |
           echo "=== Pre-stitch check ==="
           ls -lh audio.wav 2>/dev/null || echo "audio.wav MISSING"
-          echo "Frames: $(ls frames/*.png 2>/dev/null | wc -l)"
+          echo "Files in frames/:"
+          ls frames/ 2>/dev/null | head -10
+          echo "Total frames: $(ls frames/ 2>/dev/null | wc -l)"
+          # Try to find the pattern
+          FIRST=$(ls frames/ 2>/dev/null | head -1)
+          echo "First file: $FIRST"
           ffmpeg -y -framerate 60 -i frames/%04d.png -i audio.wav -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest -crf 18 -preset fast tabahi.mp4 2>&1
           ls -lh tabahi.mp4 2>/dev/null || echo "tabahi.mp4 MISSING"
 
