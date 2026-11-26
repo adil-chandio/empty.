@@ -430,9 +430,12 @@ for i in range(210):
 # ----------------------------------------------------------------------------
 # RENDER ANIMATION
 # ----------------------------------------------------------------------------
-bpy.context.scene.render.filepath = '//frames/'
+import os
+frames_dir = os.path.join(os.getcwd(), 'frames')
+os.makedirs(frames_dir, exist_ok=True)
+bpy.context.scene.render.filepath = frames_dir + '/'
 bpy.ops.render.render(animation=True)
-print(f"Rendered {TOTAL_FRAMES} frames to //frames/")
+print(f"Rendered {TOTAL_FRAMES} frames to {frames_dir}/")
 
 # ----------------------------------------------------------------------------
 # SAVE
