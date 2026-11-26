@@ -13,26 +13,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Blender via apt
+      - name: Install Blender and FFmpeg
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq blender ffmpeg
-          which blender
-          blender --version
+          echo "=== Blender ===" && blender --version | head -1
+          echo "=== FFmpeg ===" && ffmpeg -version | head -1
 
       - name: Install numpy
         run: pip install numpy
 
       - name: Generate audio
         run: python3 generate_audio.py
+        continue-on-error: true
 
       - name: Render frames with Blender
         run: |
           blender -b -P blender_render.py
-          echo "Frames: $(ls frames/*.png 2>/dev/null | wc -l)"
+          echo "=== Frames directory ==="
+          ls -la frames/ 2>/dev/null | head -10
+          echo "Frame count: $(ls frames/*.png 2>/dev/null | wc -l)"
 
       - name: Stitch MP4 with FFmpeg
         run: |
+          echo "=== Checking files ==="
+          ls -lh audio.wav 2>/dev/null || echo "audio.wav MISSING"
+          echo "Frame count: $(ls frames/*.png 2>/dev/null | wc -l)"
           ffmpeg -framerate 60 -i frames/%04d.png -i audio.wav \
             -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest \
             -crf 18 -preset slow tabahi.mp4
