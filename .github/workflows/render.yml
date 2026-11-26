@@ -16,8 +16,8 @@ jobs:
 
       - name: Install Blender
         run: |
-          wget -q https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
-          tar -xf blender-4.2.3-linux-x64.tar.xz
+          curl -sL -o blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
+          tar -xf blender.tar.xz
           echo "BLENDER_PATH=$(pwd)/blender-4.2.3-linux-x64/blender" >> $GITHUB_ENV
 
       - name: Verify Blender
@@ -28,28 +28,23 @@ jobs:
           python3 -c "
 import numpy as np
 import wave
-import math
 
 sample_rate = 48000
 duration = 30
 t = np.linspace(0, duration, int(sample_rate * duration), False)
 
-# Ambient drone (55Hz + 82.4Hz + 110Hz chord)
 drone = 0.12 * (np.sin(2*np.pi*55*t) + np.sin(2*np.pi*82.4*t) + np.sin(2*np.pi*110*t))
 
-# Heartbeat kick at 60 BPM
 heartbeat = np.zeros_like(t)
-beat_interval = sample_rate / 1.0  # 1 second per beat at 60 BPM
+beat_interval = sample_rate
 for i in range(int(duration)):
     start = int(i * beat_interval)
     end = min(start + int(0.16 * sample_rate), len(t))
     beat_t = np.linspace(0, 0.16, end - start)
     heartbeat[start:end] += 0.34 * np.sin(2*np.pi*55*beat_t) * np.exp(-beat_t*15)
 
-# Combine and clip
 audio = np.clip(drone + heartbeat, -1.0, 1.0)
 
-# Write WAV
 with wave.open('audio.wav', 'wb') as wf:
     wf.setnchannels(1)
     wf.setsampwidth(2)
@@ -63,8 +58,7 @@ print('audio.wav generated:', duration, 'seconds')
       - name: Render animation frames with Blender
         run: |
           ${{ env.BLENDER_PATH }} -b -P blender_render.py
-          ls -la frames/ | head -5
-          echo "Total frames: $(ls frames/*.png | wc -l)"
+          echo "Total frames: $(ls frames/*.png 2>/dev/null | wc -l)"
 
       - name: Stitch frames to MP4 with FFmpeg
         run: |
